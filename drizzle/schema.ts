@@ -1,4 +1,5 @@
 import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { relations } from "drizzle-orm";
 
 /**
  * Core user table backing auth flow.
@@ -25,4 +26,79 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Partners table - stores partner business information and niche
+ */
+export const partners = mysqlTable("partners", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  businessName: varchar("businessName", { length: 255 }).notNull(),
+  niche: varchar("niche", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Partner = typeof partners.$inferSelect;
+export type InsertPartner = typeof partners.$inferInsert;
+
+/**
+ * Leads table - stores generated leads for partners
+ */
+export const leads = mysqlTable("leads", {
+  id: int("id").autoincrement().primaryKey(),
+  partnerId: int("partnerId").notNull(),
+  businessName: varchar("businessName", { length: 255 }).notNull(),
+  contactPerson: varchar("contactPerson", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }),
+  phone: varchar("phone", { length: 20 }),
+  employees: int("employees"),
+  niche: varchar("niche", { length: 255 }).notNull(),
+  qualificationScore: int("qualificationScore").default(0),
+  onlinePresence: text("onlinePresence"),
+  notes: text("notes"),
+  leadSource: varchar("leadSource", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Lead = typeof leads.$inferSelect;
+export type InsertLead = typeof leads.$inferInsert;
+
+/**
+ * Niche mappings - maps niches to their best lead sources
+ */
+export const nicheMappings = mysqlTable("nicheMappings", {
+  id: int("id").autoincrement().primaryKey(),
+  niche: varchar("niche", { length: 255 }).notNull().unique(),
+  leadSources: text("leadSources"), // JSON array of sources
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type NicheMapping = typeof nicheMappings.$inferSelect;
+export type InsertNicheMapping = typeof nicheMappings.$inferInsert;
+
+/**
+ * Relations for Drizzle ORM query API
+ */
+export const usersRelations = relations(users, ({ many }) => ({
+  partners: many(partners),
+}));
+
+export const partnersRelations = relations(partners, ({ one, many }) => ({
+  user: one(users, {
+    fields: [partners.userId],
+    references: [users.id],
+  }),
+  leads: many(leads),
+}));
+
+export const leadsRelations = relations(leads, ({ one }) => ({
+  partner: one(partners, {
+    fields: [leads.partnerId],
+    references: [partners.id],
+  }),
+}));
