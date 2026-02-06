@@ -46,6 +46,37 @@
 - [x] Test partner profile retrieval
 - [x] All tests passing (9 tests)
 
+## Stripe Payment Integration (COMPLETED)
+
+### Setup & Configuration
+- [x] Stripe feature added to project
+- [x] API keys auto-configured
+- [x] Pricing tiers defined (Basic $111, Agency Partner $222, Elite $333)
+- [x] Webhook endpoint registered at /api/stripe/webhook
+
+### Database Schema
+- [x] Added stripeCustomerId to users table
+- [x] Added Stripe fields to partners table
+- [x] Created subscriptions table for tracking events
+
+### API Endpoints
+- [x] POST /api/stripe/webhook - Webhook handler
+- [x] trpc.payment.getPricingTiers - List pricing tiers
+- [x] trpc.payment.createCheckoutSession - Create checkout
+- [x] trpc.payment.getSubscriptionStatus - Get user subscription
+- [x] trpc.payment.cancelSubscription - Cancel subscription
+
+### Frontend Pages
+- [x] /pricing - Full pricing page with checkout
+- [x] Home page updated with pricing link
+
+### Webhook Events Handled
+- [x] checkout.session.completed
+- [x] customer.subscription.updated
+- [x] customer.subscription.deleted
+- [x] invoice.payment_succeeded
+- [x] invoice.payment_failed
+
 ## Features Not Yet Implemented
 
 ### Lead Generation Enhancement
@@ -59,12 +90,7 @@
 - [ ] Lead history and archive
 - [ ] Lead export functionality (CSV, PDF)
 - [ ] Lead filtering and search
-
-### Payment & Billing
-- [ ] Stripe integration for payment processing
-- [ ] Subscription management
-- [ ] Invoice generation
-- [ ] Usage-based billing
+- [ ] Show subscription status in dashboard
 
 ### Admin Features
 - [ ] Admin dashboard
@@ -90,14 +116,40 @@
 - No real data source integration yet
 - Lead generation is manual (not automated)
 - No email delivery system
-- No payment processing
 - No admin interface
+- Stripe test mode only (requires live keys after KYC)
 
 ## Next Priority Tasks
 
-1. Integrate real lead sources (Google Business API, LinkedIn, etc.)
-2. Implement Stripe payment processing
-3. Set up automated daily lead generation
-4. Add email notification system
-5. Create admin dashboard
-6. Connect to GoHighLevel
+1. Test Stripe payment flow with test card (4242 4242 4242 4242)
+2. Add subscription status to partner dashboard
+3. Integrate real lead sources (Google Business API, LinkedIn, etc.)
+4. Set up automated daily lead generation (6 AM delivery)
+5. Add email notifications for new leads
+6. Create admin dashboard
+7. Connect to GoHighLevel
+
+## Testing Instructions
+
+### Stripe Test Mode
+- Card: 4242 4242 4242 4242
+- Expiration: Any future date (e.g., 12/25)
+- CVC: Any 3-digit number
+- Webhook testing: Use Stripe CLI or test event from dashboard
+
+### Manual Testing Checklist
+- [ ] Visit /pricing page
+- [ ] Click "Get Started" on Agency Partner tier
+- [ ] Complete checkout with test card
+- [ ] Verify webhook received and subscription created
+- [ ] Check partner subscription status updated
+- [ ] Test subscription cancellation
+- [ ] Verify all webhook events logged
+
+## Deployment Notes
+
+- Stripe test keys are auto-configured
+- After KYC verification, update to live keys in Settings > Payment
+- Webhook endpoint: https://your-domain.com/api/stripe/webhook
+- Test webhook events before going live
+- Set up Stripe CLI for local webhook testing

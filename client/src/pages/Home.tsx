@@ -29,9 +29,9 @@ export default function Home() {
             <Zap className="h-8 w-8 text-blue-600" />
             <h1 className="text-2xl font-bold text-slate-900">Iconic AI Leads</h1>
           </div>
-          <div>
+          <div className="flex items-center gap-4">
             {isAuthenticated ? (
-              <div className="flex items-center gap-4">
+              <>
                 <span className="text-sm text-slate-600">Welcome, {user?.name || "Partner"}!</span>
                 <Button
                   onClick={() => navigate("/leads")}
@@ -39,14 +39,22 @@ export default function Home() {
                 >
                   Go to Leads
                 </Button>
-              </div>
+              </>
             ) : (
-              <Button
-                onClick={() => (window.location.href = getLoginUrl())}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Sign In
-              </Button>
+              <>
+                <Button
+                  onClick={() => navigate("/pricing")}
+                  variant="outline"
+                >
+                  Pricing
+                </Button>
+                <Button
+                  onClick={() => (window.location.href = getLoginUrl())}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Sign In
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -224,7 +232,10 @@ export default function Home() {
               <h3 className="text-2xl font-bold text-slate-900 mb-8">
                 Simple Pricing. No Surprises.
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <p className="text-slate-600 mb-8">
+                Choose the plan that works best for your business. All plans include daily AI-powered lead generation.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <Card className="border-2 border-slate-200 hover:border-blue-600 transition-colors">
                   <CardHeader>
                     <CardTitle className="text-3xl text-blue-600">$111</CardTitle>
@@ -258,6 +269,12 @@ export default function Home() {
                   </CardContent>
                 </Card>
               </div>
+              <Button
+                onClick={() => navigate("/pricing")}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-6 text-lg"
+              >
+                View Full Pricing
+              </Button>
             </div>
 
             {/* Final CTA */}

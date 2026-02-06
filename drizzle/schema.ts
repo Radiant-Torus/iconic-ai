@@ -18,6 +18,8 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  /** Stripe customer ID for this user */
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -36,6 +38,16 @@ export const partners = mysqlTable("partners", {
   niche: varchar("niche", { length: 255 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
   phone: varchar("phone", { length: 20 }),
+  /** Stripe subscription ID */
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
+  /** Subscription status: active, past_due, canceled, unpaid */
+  subscriptionStatus: varchar("subscriptionStatus", { length: 50 }).default("inactive"),
+  /** Current pricing tier: basic, agency_partner, elite */
+  pricingTier: varchar("pricingTier", { length: 50 }).default("basic"),
+  /** Subscription start date */
+  subscriptionStartDate: timestamp("subscriptionStartDate"),
+  /** Subscription renewal date */
+  subscriptionRenewalDate: timestamp("subscriptionRenewalDate"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -82,6 +94,25 @@ export type NicheMapping = typeof nicheMappings.$inferSelect;
 export type InsertNicheMapping = typeof nicheMappings.$inferInsert;
 
 /**
+ * Subscription table - tracks Stripe subscription events
+ */
+export const subscriptions = mysqlTable("subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  partnerId: int("partnerId").notNull(),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }).notNull().unique(),
+  stripePriceId: varchar("stripePriceId", { length: 255 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull(),
+  currentPeriodStart: timestamp("currentPeriodStart"),
+  currentPeriodEnd: timestamp("currentPeriodEnd"),
+  canceledAt: timestamp("canceledAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = typeof subscriptions.$inferInsert;
+
+/**
  * Relations for Drizzle ORM query API
  */
 export const usersRelations = relations(users, ({ many }) => ({
@@ -94,11 +125,19 @@ export const partnersRelations = relations(partners, ({ one, many }) => ({
     references: [users.id],
   }),
   leads: many(leads),
+  subscriptions: many(subscriptions),
 }));
 
 export const leadsRelations = relations(leads, ({ one }) => ({
   partner: one(partners, {
     fields: [leads.partnerId],
+    references: [partners.id],
+  }),
+}));
+
+export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
+  partner: one(partners, {
+    fields: [subscriptions.partnerId],
     references: [partners.id],
   }),
 }));

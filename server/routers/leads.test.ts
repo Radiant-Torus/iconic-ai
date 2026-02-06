@@ -136,14 +136,19 @@ describe("Leads Router", () => {
   });
 
   describe("getPartnerProfile", () => {
-    it("should return null for a user with no partner", async () => {
+    it("should return partner profile for authenticated user", async () => {
       const ctx = createAuthContext();
       const caller = appRouter.createCaller(ctx);
 
       const profile = await caller.leads.getPartnerProfile();
 
-      // Should return null since no partner exists yet
-      expect(profile).toBeNull();
+      // Partner is auto-created for new users
+      expect(profile).not.toBeNull();
+      expect(profile).toHaveProperty("id");
+      expect(profile).toHaveProperty("userId");
+      expect(profile).toHaveProperty("businessName");
+      expect(profile).toHaveProperty("niche");
+      expect(profile?.userId).toBe(1);
     });
   });
 
