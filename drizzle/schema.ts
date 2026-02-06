@@ -141,3 +141,59 @@ export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
     references: [partners.id],
   }),
 }));
+
+/**
+ * Audit Services - tracks admin audit service subscriptions
+ */
+export const auditServices = mysqlTable("auditServices", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  tier: mysqlEnum("tier", ["starter", "professional", "enterprise", "premium_plus"]).notNull(),
+  monthlyPrice: int("monthlyPrice").notNull(),
+  maxAuditsPerMonth: int("maxAuditsPerMonth").notNull(),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
+  status: varchar("status", { length: 50 }).default("active"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AuditService = typeof auditServices.$inferSelect;
+export type InsertAuditService = typeof auditServices.$inferInsert;
+
+/**
+ * Audits - tracks individual audits performed
+ */
+export const audits = mysqlTable("audits", {
+  id: int("id").autoincrement().primaryKey(),
+  auditServiceId: int("auditServiceId").notNull(),
+  businessName: varchar("businessName", { length: 255 }).notNull(),
+  businessAddress: varchar("businessAddress", { length: 500 }),
+  googleMapsUrl: text("googleMapsUrl"),
+  groundingScore: int("groundingScore"),
+  hallucinations: text("hallucinations"),
+  reportUrl: text("reportUrl"),
+  status: varchar("status", { length: 50 }).default("pending"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Audit = typeof audits.$inferSelect;
+export type InsertAudit = typeof audits.$inferInsert;
+
+/**
+ * Relations for audit tables
+ */
+export const auditServicesRelations = relations(auditServices, ({ one, many }) => ({
+  user: one(users, {
+    fields: [auditServices.userId],
+    references: [users.id],
+  }),
+  audits: many(audits),
+}));
+
+export const auditsRelations = relations(audits, ({ one }) => ({
+  auditService: one(auditServices, {
+    fields: [audits.auditServiceId],
+    references: [auditServices.id],
+  }),
+}));
