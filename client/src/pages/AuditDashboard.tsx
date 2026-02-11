@@ -61,7 +61,7 @@ export default function AuditDashboard() {
 
   if (!isAuthenticated || user?.role !== "admin") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen flex items-center justify-center radiant-background">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-slate-900 mb-4">Access Denied</h1>
           <p className="text-slate-600 mb-6">Only admins can access the audit dashboard</p>
@@ -74,7 +74,7 @@ export default function AuditDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen radiant-background">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
