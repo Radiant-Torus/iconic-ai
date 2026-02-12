@@ -49,8 +49,10 @@ export default function PricingPage() {
     setIsLoading(true);
 
     try {
+      const [service, tier] = tierId.split("-");
       await createCheckoutMutation.mutateAsync({
-        tier: tierId as "basic" | "agency_partner" | "elite",
+        leadsService: service === "leads" ? (tier as any) : undefined,
+        auditService: service === "audit" ? (tier as any) : undefined,
       });
     } catch (error) {
       setIsLoading(false);

@@ -1,60 +1,52 @@
-import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import Stripe from "stripe";
+import { z } from "zod";
 type StripeClient = Stripe;
 import { getDb } from "../db";
 import { partners, subscriptions } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { getAvailableTiers, calculateCombinedPrice } from "../stripe/products";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
-/**
- * Pricing tiers configuration
- */
-const PRICING_TIERS = {
-  basic: {
-    name: "Basic",
-    price: 11100, // $111.00 in cents
-    priceId: process.env.STRIPE_BASIC_PRICE_ID || "price_basic_placeholder",
-  },
-  agency_partner: {
-    name: "Agency Partner",
-    price: 22200, // $222.00 in cents
-    priceId: process.env.STRIPE_AGENCY_PARTNER_PRICE_ID || "price_agency_placeholder",
-  },
-  elite: {
-    name: "Elite",
-    price: 33300, // $333.00 in cents
-    priceId: process.env.STRIPE_ELITE_PRICE_ID || "price_elite_placeholder",
-  },
-};
-
 export const paymentRouter = router({
   /**
-   * Get available pricing tiers
+   * Get available pricing tiers for both services
    */
   getPricingTiers: publicProcedure.query(async () => {
-    return Object.entries(PRICING_TIERS).map(([key, tier]) => ({
-      id: key,
+    return getAvailableTiers().map((tier) => ({
+      id: tier.id,
       name: tier.name,
       price: tier.price,
       priceUSD: `$${(tier.price / 100).toFixed(2)}`,
+      service: tier.service,
+      tier: tier.tier,
+      features: tier.features,
     }));
   }),
 
   /**
-   * Create a checkout session for a pricing tier
+   * Create a checkout session for one or both services
    */
   createCheckoutSession: protectedProcedure
     .input(
       z.object({
-        tier: z.enum(["basic", "agency_partner", "elite"]),
+        leadsService: z.enum(["basic", "professional", "enterprise"]).optional(),
+        auditService: z.enum(["starter", "professional", "enterprise", "premium_plus"]).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      // Must select at least one service
+      if (!input.leadsService && !input.auditService) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Please select at least one service",
+        });
+      }
 
       try {
         // Get or create partner
@@ -92,17 +84,65 @@ export const paymentRouter = router({
             },
           });
           stripeCustomerId = customer.id;
-
-          // Update user with Stripe customer ID
-          // Note: This would require a mutation in the users table
-          // For now, we'll just use the ID from the session
         }
 
-        const tierConfig = PRICING_TIERS[input.tier];
-        if (!tierConfig) {
+        // Build line items based on selected services
+        const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+        let totalPrice = 0;
+        let serviceDescription = "";
+
+        // Add leads service if selected
+        if (input.leadsService) {
+          const leadsKey = `LEADS_${input.leadsService.toUpperCase()}`;
+          const leadsProduct = (require("../stripe/products").STRIPE_PRODUCTS as any)[leadsKey];
+          if (leadsProduct) {
+            lineItems.push({
+              price_data: {
+                currency: "usd",
+                product_data: {
+                  name: leadsProduct.name,
+                  description: leadsProduct.description,
+                },
+                unit_amount: leadsProduct.price,
+                recurring: {
+                  interval: "month",
+                },
+              },
+              quantity: 1,
+            });
+            totalPrice += leadsProduct.price;
+            serviceDescription += `Leads (${input.leadsService}) `;
+          }
+        }
+
+        // Add audit service if selected
+        if (input.auditService) {
+          const auditKey = `AUDIT_${input.auditService.toUpperCase().replace(/_/g, "_")}`;
+          const auditProduct = (require("../stripe/products").STRIPE_PRODUCTS as any)[auditKey];
+          if (auditProduct) {
+            lineItems.push({
+              price_data: {
+                currency: "usd",
+                product_data: {
+                  name: auditProduct.name,
+                  description: auditProduct.description,
+                },
+                unit_amount: auditProduct.price,
+                recurring: {
+                  interval: "month",
+                },
+              },
+              quantity: 1,
+            });
+            totalPrice += auditProduct.price;
+            serviceDescription += `Audit (${input.auditService})`;
+          }
+        }
+
+        if (lineItems.length === 0) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "Invalid pricing tier",
+            message: "Invalid service selection",
           });
         }
 
@@ -111,19 +151,16 @@ export const paymentRouter = router({
           customer_email: ctx.user.email || undefined,
           client_reference_id: ctx.user.id.toString(),
           payment_method_types: ["card"],
-          line_items: [
-            {
-              price: tierConfig.priceId,
-              quantity: 1,
-            },
-          ],
+          line_items: lineItems,
           mode: "subscription",
-          success_url: `${ctx.req.headers.origin || "https://iconic-ai-leads.manus.space"}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${ctx.req.headers.origin || "https://iconic-ai-leads.manus.space"}/pricing`,
+          success_url: `${ctx.req.headers.origin || "https://radiant-torus.manus.space"}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${ctx.req.headers.origin || "https://radiant-torus.manus.space"}/pricing`,
           metadata: {
             userId: ctx.user.id.toString(),
             partnerId: partnerId.toString(),
-            tier: input.tier,
+            leadsService: input.leadsService || "none",
+            auditService: input.auditService || "none",
+            totalPrice: totalPrice.toString(),
           },
           allow_promotion_codes: true,
         });
@@ -131,6 +168,9 @@ export const paymentRouter = router({
         return {
           sessionId: session.id,
           url: session.url,
+          totalPrice,
+          totalPriceUSD: `$${(totalPrice / 100).toFixed(2)}`,
+          services: serviceDescription.trim(),
         };
       } catch (error) {
         console.error("Error creating checkout session:", error);
@@ -155,28 +195,20 @@ export const paymentRouter = router({
         .where(eq(partners.userId, ctx.user.id))
         .limit(1);
 
-      if (partner.length === 0) {
-        return {
-          status: "no_partner",
-          tier: null,
-          subscriptionId: null,
-        };
+      if (!partner.length) {
+        return null;
       }
 
-      const partnerData = partner[0];
-
       return {
-        status: partnerData.subscriptionStatus || "inactive",
-        tier: partnerData.pricingTier || "basic",
-        subscriptionId: partnerData.stripeSubscriptionId,
-        startDate: partnerData.subscriptionStartDate,
-        renewalDate: partnerData.subscriptionRenewalDate,
+        tier: partner[0].pricingTier,
+        status: partner[0].subscriptionStatus,
+        renewalDate: partner[0].subscriptionRenewalDate,
       };
     } catch (error) {
-      console.error("Error getting subscription status:", error);
+      console.error("Error fetching subscription status:", error);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get subscription status",
+        message: "Failed to fetch subscription status",
       });
     }
   }),
@@ -195,7 +227,7 @@ export const paymentRouter = router({
         .where(eq(partners.userId, ctx.user.id))
         .limit(1);
 
-      if (partner.length === 0 || !partner[0].stripeSubscriptionId) {
+      if (!partner.length || !partner[0].stripeSubscriptionId) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "No active subscription found",
@@ -203,16 +235,9 @@ export const paymentRouter = router({
       }
 
       // Cancel subscription in Stripe
-      await stripe.subscriptions.cancel(partner[0].stripeSubscriptionId);
-
-      // Update partner subscription status
-      await db
-        .update(partners)
-        .set({
-          subscriptionStatus: "canceled",
-          pricingTier: "basic",
-        })
-        .where(eq(partners.id, partner[0].id));
+      await stripe.subscriptions.update(partner[0].stripeSubscriptionId, {
+        cancel_at_period_end: true,
+      });
 
       return { success: true };
     } catch (error) {
