@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radiant Torus - AI-Powered Lead Generation & Google Maps Audit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Radiant background with angel numbers */
+        .radiant-background {
+            background: linear-gradient(135deg, #7b2cbf 0%, #c77dff 25%, #e0aaff 50%, #ff006e 75%, #c77dff 100%);
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        .radiant-background::before {
+            content: '111  222  333  444  555  666  777  888  999  111  222  333  444  555  666  777  888  999  111  222  333  444  555  666  777  888  999';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.15);
+            line-height: 2.8;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            overflow: hidden;
+            pointer-events: none;
+            letter-spacing: 4px;
+            z-index: 0;
+            padding: 20px;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #fbbf24, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #333;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        /* Main Content */
+        main {
+            padding: 60px 0;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 900;
+            color: #1f2937;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero .subtitle {
+            font-size: 20px;
+            background: linear-gradient(90deg, #ff006e, #c77dff, #00d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 16px 40px;
+            font-size: 16px;
+            border-radius: 8px;
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            border-color: #2563eb;
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Services Section */
+        .services {
+            background: white;
+            padding: 60px 0;
+            margin: 80px 0;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .services-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 900;
+            color: #1f2937;
+            margin-bottom: 50px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .service-box {
+            text-align: center;
+        }
+
+        .service-box h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
+        .service-box ul {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .service-box li {
+            padding: 10px 0;
+            color: #6b7280;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .service-box li:before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            margin: 80px 0;
+        }
+
+        .pricing-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 900;
+            color: #1f2937;
+            margin-bottom: 50px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .pricing-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border-color: #2563eb;
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2563eb;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .pricing-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 48px;
+            font-weight: 900;
+            color: #2563eb;
+            margin: 20px 0;
+        }
+
+        .price-period {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .pricing-card ul {
+            list-style: none;
+            text-align: left;
+            margin: 30px 0;
+        }
+
+        .pricing-card li {
+            padding: 10px 0;
+            color: #6b7280;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pricing-card li:before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            background: white;
+            padding: 60px 0;
+            margin: 80px 0;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .how-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 900;
+            color: #1f2937;
+            margin-bottom: 50px;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .step {
+            text-align: center;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 auto 20px;
+        }
+
+        .step h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .step p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 60px 0;
+            border-radius: 16px;
+            text-align: center;
+            margin: 80px 0;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .cta-section .btn-large {
+            background: white;
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .cta-section .btn-large:hover {
+            background: #f3f4f6;
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 40px 0;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        footer a {
+            color: #2563eb;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero .subtitle {
+                font-size: 16px;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-section h2 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="radiant-background">
+        <!-- Header -->
+        <header>
+            <div class="container">
+                <div class="logo">
+                    <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663286067003/YevHaHGAcfbUAXrg.png" alt="Radiant Torus">
+                    <span>Radiant Torus</span>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn-secondary">Learn More</button>
+                    <button class="btn-primary">Get Started</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <div class="container">
+                <!-- Hero Section -->
+                <section class="hero">
+                    <h1>Get Qualified Leads Daily</h1>
+                    <p class="subtitle">AI-powered lead generation for any business niche. Simple. Automatic. Effective.</p>
+                    <div class="hero-cta">
+                        <button class="btn-primary btn-large">Sign In to Get Started</button>
+                        <button class="btn-secondary btn-large">View Pricing</button>
+                    </div>
+                </section>
+
+                <!-- Features -->
+                <section class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Automatic Daily Delivery</h3>
+                        <p>Get fresh, qualified leads delivered every morning at 6 AM to your dashboard</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📈</div>
+                        <h3>Highly Qualified</h3>
+                        <p>Each lead is scored and verified for conversion potential using AI analysis</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Any Niche Works</h3>
+                        <p>From wellness to real estate, our AI adapts to your industry automatically</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Services Section -->
+        <section class="services">
+            <div class="container">
+                <h2 class="services-title">Our Services</h2>
+                <div class="services-grid">
+                    <!-- Lead Generation -->
+                    <div class="service-box">
+                        <h3>🎯 Lead Generation</h3>
+                        <p style="color: #6b7280; margin-bottom: 20px;">Get daily qualified leads tailored to your niche</p>
+                        <ul>
+                            <li>Daily lead delivery</li>
+                            <li>AI-powered qualification</li>
+                            <li>Niche customization</li>
+                            <li>CSV export</li>
+                            <li>Lead scoring</li>
+                        </ul>
+                        <button class="btn-primary btn-large">Learn More</button>
+                    </div>
+
+                    <!-- Google Maps Audit -->
+                    <div class="service-box">
+                        <h3>🗺️ Google Maps Audit</h3>
+                        <p style="color: #6b7280; margin-bottom: 20px;">Verify AI accuracy and prevent hallucinations</p>
+                        <ul>
+                            <li>Ground truth verification</li>
+                            <li>Accuracy scoring</li>
+                            <li>Hallucination detection</li>
+                            <li>Detailed reports</li>
+                            <li>Admin dashboard</li>
+                        </ul>
+                        <button class="btn-primary btn-large">Learn More</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="how-it-works">
+            <div class="container">
+                <h2 class="how-title">How It Works (3 Simple Steps)</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h4>Tell Us Your Niche</h4>
+                        <p>Select your industry or business type. That's it!</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h4>AI Finds Your Leads</h4>
+                        <p>Our AI searches the best sources for your industry</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h4>Get Qualified Leads</h4>
+                        <p>Receive verified, ready-to-contact business prospects</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <div class="container">
+            <section class="pricing">
+                <h2 class="pricing-title">Simple Pricing. No Surprises.</h2>
+                <div class="pricing-grid">
+                    <!-- Lead Generation Pricing -->
+                    <div class="pricing-card">
+                        <h3>Lead Gen - Starter</h3>
+                        <div class="price">$111</div>
+                        <div class="price-period">per month</div>
+                        <ul>
+                            <li>Daily leads</li>
+                            <li>Basic dashboard</li>
+                            <li>Email support</li>
+                            <li>Up to 5 niches</li>
+                            <li>CSV export</li>
+                        </ul>
+                        <button class="btn-primary btn-large">Get Started</button>
+                    </div>
+
+                    <div class="pricing-card featured">
+                        <h3>Lead Gen - Professional</h3>
+                        <div class="price">$222</div>
+                        <div class="price-period">per month</div>
+                        <ul>
+                            <li>Daily qualified leads</li>
+                            <li>White-label option</li>
+                            <li>Advanced dashboard</li>
+                            <li>Priority support</li>
+                            <li>Unlimited niches</li>
+                        </ul>
+                        <button class="btn-primary btn-large">Get Started</button>
+                    </div>
+
+                    <div class="pricing-card">
+                        <h3>Lead Gen - Enterprise</h3>
+                        <div class="price">$333</div>
+                        <div class="price-period">per month</div>
+                        <ul>
+                            <li>Unlimited daily leads</li>
+                            <li>API access</li>
+                            <li>Custom integrations</li>
+                            <li>Dedicated support</li>
+                            <li>Advanced analytics</li>
+                        </ul>
+                        <button class="btn-primary btn-large">Get Started</button>
+                    </div>
+
+                    <!-- Audit Service Pricing -->
+                    <div class="pricing-card">
+                        <h3>Audit - Starter</h3>
+                        <div class="price">$111</div>
+                        <div class="price-period">per month</div>
+                        <ul>
+                            <li>5 audits/month</li>
+                            <li>Accuracy scoring</li>
+                            <li>Basic reports</li>
+                            <li>Email support</li>
+                            <li>Ground verification</li>
+                        </ul>
+                        <button class="btn-primary btn-large">Get Started</button>
+                    </div>
+
+                    <div class="pricing-card">
+                        <h3>Audit - Professional</h3>
+                        <div class="price">$222</div>
+                        <div class="price-period">per month</div>
+                        <ul>
+                            <li>20 audits/month</li>
+                            <li>Detailed reports</li>
+                            <li>Hallucination detection</li>
+                            <li>Priority support</li>
+                            <li>Advanced analytics</li>
+                        </ul>
+                        <button class="btn-primary btn-large">Get Started</button>
+                    </div>
+
+                    <div class="pricing-card">
+                        <h3>Audit - Enterprise</h3>
+                        <div class="price">$333</div>
+                        <div class="price-period">per month</div>
+                        <ul>
+                            <li>Unlimited audits</li>
+                            <li>Custom criteria</li>
+                            <li>API access</li>
+                            <li>Dedicated support</li>
+                            <li>Real-time alerts</li>
+                        </ul>
+                        <button class="btn-primary btn-large">Get Started</button>
+                    </div>
+
+                    <div class="pricing-card">
+                        <h3>Audit - Premium Plus</h3>
+                        <div class="price">$555</div>
+                        <div class="price-period">per month</div>
+                        <ul>
+                            <li>Unlimited audits</li>
+                            <li>Dedicated account manager</li>
+                            <li>24/7 support</li>
+                            <li>Custom integrations</li>
+                            <li>White-label option</li>
+                        </ul>
+                        <button class="btn-primary btn-large">Get Started</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="container">
+                <h2>Ready to Transform Your Lead Generation?</h2>
+                <p>Join hundreds of businesses getting qualified leads daily with Radiant Torus</p>
+                <button class="btn-large">Get Started Now - No Credit Card Required</button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <p>&copy; 2026 Radiant Torus. All rights reserved. | 
+                    <a href="#">Terms of Service</a> | 
+                    <a href="#">Privacy Policy</a> | 
+                    <a href="#">Contact Us</a>
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

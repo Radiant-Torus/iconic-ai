@@ -135,7 +135,7 @@ export default function PricingPage() {
           <h2 className="text-4xl font-bold text-slate-900 mb-4">
             Simple, Transparent Pricing
           </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+          <p className="text-xl subtitle max-w-2xl mx-auto">
             Choose the plan that works best for your business. All plans include daily AI-powered lead generation.
           </p>
         </div>
@@ -165,7 +165,7 @@ export default function PricingPage() {
                   <div className="text-4xl font-bold text-slate-900">
                     {tier.priceUSD}
                   </div>
-                  <p className="text-slate-600 text-sm mt-1">per month, billed monthly</p>
+                  <p className="text-sm mt-1 subtitle-alt">per month, billed monthly</p>
                 </div>
 
                 {/* Features */}

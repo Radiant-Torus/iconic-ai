@@ -69,7 +69,7 @@ export default function Home() {
               <h2 className="text-4xl font-bold text-slate-900 mb-4">
                 Your AI-Powered Lead Generator
               </h2>
-              <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              <p className="text-xl subtitle max-w-2xl mx-auto">
                 Get qualified leads delivered daily, tailored to your niche. No complicated setup. Just results.
               </p>
             </div>
@@ -83,7 +83,7 @@ export default function Home() {
                       <Zap className="h-6 w-6 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600">Daily Leads</p>
+                      <p className="text-sm subtitle-alt">Daily Leads</p>
                       <p className="text-2xl font-bold text-slate-900">Automatic</p>
                     </div>
                   </div>
@@ -97,7 +97,7 @@ export default function Home() {
                       <TrendingUp className="h-6 w-6 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600">Qualified</p>
+                      <p className="text-sm subtitle-alt">Qualified</p>
                       <p className="text-2xl font-bold text-slate-900">High Quality</p>
                     </div>
                   </div>
@@ -111,7 +111,7 @@ export default function Home() {
                       <Users className="h-6 w-6 text-purple-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600">Your Niche</p>
+                      <p className="text-sm subtitle-alt">Your Niche</p>
                       <p className="text-2xl font-bold text-slate-900">Perfect Fit</p>
                     </div>
                   </div>

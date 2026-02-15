@@ -14,6 +14,7 @@ export const STRIPE_PRODUCTS = {
     service: "leads",
     tier: "basic",
     features: ["5 leads per day", "Basic dashboard", "Email support", "CSV export"],
+    priceId: "price_1T11Iz2SH1dm83HB8fxMcAxF", // Stripe Live Price ID
   },
   LEADS_PROFESSIONAL: {
     name: "Leads - Professional",
@@ -30,6 +31,7 @@ export const STRIPE_PRODUCTS = {
       "CSV + PDF export",
       "Lead filtering",
     ],
+    priceId: "price_1T11J02SH1dm83HBHzFv8LOr", // Stripe Live Price ID
   },
   LEADS_ENTERPRISE: {
     name: "Leads - Enterprise",
@@ -46,6 +48,7 @@ export const STRIPE_PRODUCTS = {
       "Custom integrations",
       "Dedicated support",
     ],
+    priceId: "price_1T11J22SH1dm83HBW81zvCAr", // Stripe Live Price ID
   },
 
   // AUDIT SERVICE
@@ -58,6 +61,7 @@ export const STRIPE_PRODUCTS = {
     service: "audit",
     tier: "starter",
     features: ["5 audits per month", "Basic grounding report", "Email support"],
+    priceId: "price_1T11J32SH1dm83HBSC9RsgWW", // Stripe Live Price ID
   },
   AUDIT_PROFESSIONAL: {
     name: "Audit - Professional",
@@ -73,6 +77,7 @@ export const STRIPE_PRODUCTS = {
       "Recommendations included",
       "Priority support",
     ],
+    priceId: "price_1T11J52SH1dm83HBQEtD5qwm", // Stripe Live Price ID
   },
   AUDIT_ENTERPRISE: {
     name: "Audit - Enterprise",
@@ -88,6 +93,7 @@ export const STRIPE_PRODUCTS = {
       "Priority support",
       "Custom branding",
     ],
+    priceId: "price_1T11J62SH1dm83HBktiue3Vg", // Stripe Live Price ID
   },
   AUDIT_PREMIUM_PLUS: {
     name: "Audit - Premium Plus",
@@ -104,6 +110,7 @@ export const STRIPE_PRODUCTS = {
       "Priority support",
       "Custom integrations",
     ],
+    priceId: "price_1T11J72SH1dm83HBK0BtbYc8", // Stripe Live Price ID
   },
 };
 

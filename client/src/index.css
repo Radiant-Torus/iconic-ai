@@ -171,6 +171,22 @@
     pointer-events: none;
   }
 
+  /* Subtitle styling that pops */
+  .subtitle {
+    background: linear-gradient(90deg, #ff006e, #c77dff, #00d9ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .subtitle-alt {
+    color: #ff006e;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(255, 0, 110, 0.3);
+  }
+
   /**
    * Custom container utility that centers content and adds responsive padding.
    *
