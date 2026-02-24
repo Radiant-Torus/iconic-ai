@@ -2,8 +2,9 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
-import { Loader2, Check } from "lucide-react";
+import { Loader2, Check, Zap, MapPin, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ export default function PricingPage() {
   const [, navigate] = useLocation();
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeService, setActiveService] = useState<"leads" | "audit" | "meta_audit">("leads");
 
   // Get pricing tiers
   const { data: tiers = [] } = trpc.payment.getPricingTiers.useQuery();
@@ -53,6 +55,7 @@ export default function PricingPage() {
       await createCheckoutMutation.mutateAsync({
         leadsService: service === "leads" ? (tier as any) : undefined,
         auditService: service === "audit" ? (tier as any) : undefined,
+        metaAuditService: service === "meta" ? (tier as any) : undefined,
       });
     } catch (error) {
       setIsLoading(false);
@@ -60,120 +63,91 @@ export default function PricingPage() {
     }
   };
 
-  const getTierDescription = (tierId: string) => {
-    const descriptions: Record<string, string> = {
-      basic: "Perfect for getting started with lead generation",
-      agency_partner:
-        "White-label option + daily leads for agencies and resellers",
-      elite: "Premium features, unlimited leads, and dedicated support",
-    };
-    return descriptions[tierId] || "";
+  const getServiceTiers = (service: string) => {
+    return tiers.filter((t) => t.service === service);
   };
 
-  const getTierFeatures = (tierId: string) => {
-    const features: Record<string, string[]> = {
-      basic: [
-        "Daily lead generation",
-        "Basic dashboard",
-        "Email support",
-        "Up to 5 niches",
-        "Lead export (CSV)",
-      ],
-      agency_partner: [
-        "Daily qualified leads",
-        "White-label option",
-        "Advanced dashboard",
-        "Priority support",
-        "Lead export (CSV, PDF)",
-        "Custom branding",
-        "Unlimited niches",
-      ],
-      elite: [
-        "Unlimited daily leads",
-        "White-label + API access",
-        "Custom integrations",
-        "Dedicated account manager",
-        "24/7 priority support",
-        "Advanced analytics",
-        "Custom lead criteria",
-      ],
-    };
-    return features[tierId] || [];
+  const isCurrentTier = (tierId: string, service: string) => {
+    return subscription?.tier === tierId.split("-")[1];
   };
 
-  const isCurrentTier = (tierId: string) => {
-    const tierMap: Record<string, string> = {
-      basic: "basic",
-      agency_partner: "agency_partner",
-      elite: "elite",
+  const renderServiceSection = (service: "leads" | "audit" | "meta_audit") => {
+    const serviceTiers = getServiceTiers(service);
+    
+    const serviceInfo: Record<string, any> = {
+      leads: {
+        title: "Lead Generation",
+        description: "AI-powered lead generation for your business",
+        icon: Zap,
+        color: "from-yellow-400 to-orange-500",
+        highlight: "starter",
+      },
+      audit: {
+        title: "Google Maps Audit",
+        description: "Optimize your Google Business Profile ranking",
+        icon: MapPin,
+        color: "from-blue-400 to-cyan-500",
+        highlight: "professional",
+      },
+      meta_audit: {
+        title: "Meta Ads Audit",
+        description: "AI-powered Meta ads optimization and analysis",
+        icon: TrendingUp,
+        color: "from-pink-400 to-purple-500",
+        highlight: "professional",
+      },
     };
-    return subscription?.tier === tierMap[tierId];
-  };
 
-  return (
-    <div className="min-h-screen radiant-background">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663286067003/YevHaHGAcfbUAXrg.png" alt="Radiant Torus" className="h-10 w-10 rounded-full" />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-purple-500 bg-clip-text text-transparent">Radiant Torus</h1>
-          </div>
-          <Button
-            onClick={() => navigate("/")}
-            variant="outline"
-          >
-            Back to Home
-          </Button>
-        </div>
-      </header>
+    const info = serviceInfo[service];
+    const IconComponent = info.icon;
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
+    return (
+      <div className="space-y-8">
+        {/* Service Header */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Simple, Transparent Pricing
-          </h2>
-          <p className="text-xl subtitle max-w-2xl mx-auto">
-            Choose the plan that works best for your business. All plans include daily AI-powered lead generation.
-          </p>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <IconComponent className="h-8 w-8 text-slate-900" />
+            <h3 className="text-3xl font-bold text-slate-900">{info.title}</h3>
+          </div>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">{info.description}</p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {tiers.map((tier) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {serviceTiers.map((tier) => (
             <Card
               key={tier.id}
               className={`border-2 transition-all ${
-                tier.id === "agency_partner"
-                  ? "border-blue-600 shadow-2xl scale-105"
-                  : "border-slate-200 hover:border-blue-600"
+                tier.tier === info.highlight
+                  ? `border-gradient-to-r ${info.color} shadow-2xl scale-105`
+                  : "border-slate-200 hover:border-slate-300"
               }`}
             >
               <CardHeader>
-                {tier.id === "agency_partner" && (
-                  <Badge className="w-fit mb-2 bg-blue-600">Most Popular</Badge>
+                {tier.tier === info.highlight && (
+                  <Badge className={`w-fit mb-2 bg-gradient-to-r ${info.color} text-white`}>
+                    Most Popular
+                  </Badge>
                 )}
-                <CardTitle className="text-2xl">{tier.name}</CardTitle>
-                <CardDescription>{getTierDescription(tier.id)}</CardDescription>
+                <CardTitle className="text-2xl capitalize">{tier.tier.replace(/_/g, " ")}</CardTitle>
+                <CardDescription>{(tier as any).description || "Premium service tier"}</CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-6">
                 {/* Price */}
                 <div>
                   <div className="text-4xl font-bold text-slate-900">
-                    {tier.priceUSD}
+                    ${(tier.price / 100).toFixed(0)}
                   </div>
-                  <p className="text-sm mt-1 subtitle-alt">per month, billed monthly</p>
+                  <p className="text-sm mt-1 text-slate-600">per month, billed monthly</p>
                 </div>
 
                 {/* Features */}
                 <div className="space-y-3">
-                  {getTierFeatures(tier.id).map((feature) => (
-                    <div key={feature} className="flex items-start gap-3">
+                  {tier.features.map((feature: string) => (
+                    <div key={feature as string} className="flex items-start gap-3">
                       <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-slate-700">{feature}</span>
+                      <span className="text-slate-700 text-sm">{feature as string}</span>
                     </div>
                   ))}
                 </div>
@@ -183,8 +157,8 @@ export default function PricingPage() {
                   onClick={() => handleSelectTier(tier.id)}
                   disabled={isLoading && selectedTier === tier.id}
                   className={`w-full py-6 text-base font-semibold ${
-                    tier.id === "agency_partner"
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    tier.tier === info.highlight
+                      ? `bg-gradient-to-r ${info.color} hover:opacity-90 text-white`
                       : "bg-slate-200 hover:bg-slate-300 text-slate-900"
                   }`}
                 >
@@ -193,14 +167,14 @@ export default function PricingPage() {
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Processing...
                     </>
-                  ) : isCurrentTier(tier.id) ? (
+                  ) : isCurrentTier(tier.id, service) ? (
                     "Current Plan"
                   ) : (
                     "Get Started"
                   )}
                 </Button>
 
-                {isCurrentTier(tier.id) && (
+                {isCurrentTier(tier.id, service) && (
                   <div className="text-center text-sm text-green-600 font-semibold">
                     ✓ Active Subscription
                   </div>
@@ -209,14 +183,115 @@ export default function PricingPage() {
             </Card>
           ))}
         </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen radiant-background">
+      {/* Header */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <img
+              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663286067003/YevHaHGAcfbUAXrg.png"
+              alt="Radiant Torus"
+              className="h-10 w-10 rounded-full"
+            />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-purple-500 bg-clip-text text-transparent">
+              Radiant Torus
+            </h1>
+          </div>
+          <Button onClick={() => navigate("/")} variant="outline">
+            Back to Home
+          </Button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Page Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            Complete Business Growth Platform
+          </h2>
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            Choose the services that work best for your business. All powered by AI and designed for HVAC contractors and local service businesses.
+          </p>
+        </div>
+
+        {/* Service Tabs */}
+        <Tabs
+          value={activeService}
+          onValueChange={(value) => setActiveService(value as "leads" | "audit" | "meta_audit")}
+          className="w-full"
+        >
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-12">
+            <TabsTrigger value="leads" className="text-base">
+              <Zap className="h-4 w-4 mr-2" />
+              Lead Gen
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="text-base">
+              <MapPin className="h-4 w-4 mr-2" />
+              Maps Audit
+            </TabsTrigger>
+            <TabsTrigger value="meta_audit" className="text-base">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Meta Audit
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="leads" className="space-y-8">
+            {renderServiceSection("leads")}
+          </TabsContent>
+
+          <TabsContent value="audit" className="space-y-8">
+            {renderServiceSection("audit")}
+          </TabsContent>
+
+          <TabsContent value="meta_audit" className="space-y-8">
+            {renderServiceSection("meta_audit")}
+          </TabsContent>
+        </Tabs>
+
+        {/* Bundle Offer */}
+        <div className="mt-16 bg-gradient-to-r from-yellow-50 to-purple-50 rounded-xl p-8 border-2 border-yellow-200">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">🎁 Bundle & Save</h3>
+            <p className="text-slate-600 mb-4">
+              Combine multiple services for maximum impact. Contact us for custom bundle pricing.
+            </p>
+            <Button
+              onClick={() => {
+                if (!isAuthenticated) {
+                  navigate("/");
+                  return;
+                }
+                toast.info("Bundle pricing available - contact support for details");
+              }}
+              className="bg-gradient-to-r from-yellow-400 to-purple-500 text-white hover:opacity-90"
+            >
+              Learn About Bundles
+            </Button>
+          </div>
+        </div>
 
         {/* FAQ Section */}
-        <div className="bg-white rounded-xl p-8 shadow-lg">
+        <div className="mt-16 bg-white rounded-xl p-8 shadow-lg">
           <h3 className="text-2xl font-bold text-slate-900 mb-8 text-center">
             Frequently Asked Questions
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">
+                Can I use multiple services?
+              </h4>
+              <p className="text-slate-600">
+                Absolutely! Many customers combine lead generation with audits for maximum results. Contact us for bundle pricing.
+              </p>
+            </div>
+
             <div>
               <h4 className="font-semibold text-slate-900 mb-2">
                 Can I change my plan anytime?
@@ -240,7 +315,7 @@ export default function PricingPage() {
                 Is there a free trial?
               </h4>
               <p className="text-slate-600">
-                Contact our sales team for a free trial or demo of the platform.
+                Contact our sales team for a free trial or demo of any service.
               </p>
             </div>
 
@@ -250,6 +325,15 @@ export default function PricingPage() {
               </h4>
               <p className="text-slate-600">
                 We offer a 30-day money-back guarantee if you're not satisfied with our service.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">
+                How quickly will I see results?
+              </h4>
+              <p className="text-slate-600">
+                Lead generation starts within 24 hours. Audits are completed within 3-5 business days.
               </p>
             </div>
           </div>

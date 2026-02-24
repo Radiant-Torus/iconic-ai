@@ -112,6 +112,62 @@ export const STRIPE_PRODUCTS = {
     ],
     priceId: "price_1T11J72SH1dm83HBK0BtbYc8", // Stripe Live Price ID
   },
+
+  // META ADS AUDIT SERVICE
+  META_AUDIT_STARTER: {
+    name: "Meta Ads Audit - Starter",
+    price: 29700, // $297.00 in cents
+    currency: "usd",
+    interval: "month",
+    description: "One-time Meta ads campaign audit with analysis",
+    service: "meta_audit",
+    tier: "starter",
+    features: [
+      "Campaign performance analysis",
+      "Audience insights",
+      "Budget optimization review",
+      "Detailed audit report",
+    ],
+    priceId: "price_1T4BM12SH1dm83HBQSUdTo54", // Stripe Live Price ID
+  },
+  META_AUDIT_PROFESSIONAL: {
+    name: "Meta Ads Audit - Professional",
+    price: 59700, // $597.00 in cents
+    currency: "usd",
+    interval: "month",
+    description: "Comprehensive Meta ads audit with recommendations",
+    service: "meta_audit",
+    tier: "professional",
+    features: [
+      "Full campaign analysis",
+      "Audience segmentation review",
+      "Creative performance breakdown",
+      "Actionable recommendations",
+      "Implementation roadmap",
+      "30-min strategy call",
+    ],
+    priceId: "price_1T4BM42SH1dm83HBCmIQWdM6", // Stripe Live Price ID
+  },
+  META_AUDIT_DONE_FOR_YOU: {
+    name: "Meta Ads Audit - Done-For-You",
+    price: 149700, // $1,497.00 in cents
+    currency: "usd",
+    interval: "month",
+    description: "Full Meta ads optimization with implementation",
+    service: "meta_audit",
+    tier: "done_for_you",
+    features: [
+      "Complete audit & analysis",
+      "Campaign restructuring",
+      "Audience optimization",
+      "Creative testing setup",
+      "Budget reallocation",
+      "Monthly optimization",
+      "Quarterly strategy calls",
+      "Dedicated support",
+    ],
+    priceId: "price_1T4BM52SH1dm83HBrP8YHOjD", // Stripe Live Price ID
+  },
 };
 
 /**
@@ -125,7 +181,7 @@ export function getProductByTier(tier: string) {
 /**
  * Get all available tiers for a service
  */
-export function getAvailableTiersByService(service: "leads" | "audit") {
+export function getAvailableTiersByService(service: "leads" | "audit" | "meta_audit") {
   return Object.entries(STRIPE_PRODUCTS)
     .filter(([_, product]: any) => product.service === service)
     .map(([key, product]: any) => ({
@@ -158,7 +214,8 @@ export function getAvailableTiers() {
  */
 export function calculateCombinedPrice(
   leadsPrice: number | null,
-  auditPrice: number | null
+  auditPrice: number | null,
+  metaAuditPrice: number | null = null
 ): number {
-  return (leadsPrice || 0) + (auditPrice || 0);
+  return (leadsPrice || 0) + (auditPrice || 0) + (metaAuditPrice || 0);
 }

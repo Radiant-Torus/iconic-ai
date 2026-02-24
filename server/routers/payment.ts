@@ -34,6 +34,7 @@ export const paymentRouter = router({
       z.object({
         leadsService: z.enum(["basic", "professional", "enterprise"]).optional(),
         auditService: z.enum(["starter", "professional", "enterprise", "premium_plus"]).optional(),
+        metaAuditService: z.enum(["starter", "professional", "done_for_you"]).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -41,7 +42,7 @@ export const paymentRouter = router({
       if (!db) throw new Error("Database not available");
 
       // Must select at least one service
-      if (!input.leadsService && !input.auditService) {
+      if (!input.leadsService && !input.auditService && !input.metaAuditService) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Please select at least one service",
@@ -135,7 +136,31 @@ export const paymentRouter = router({
               quantity: 1,
             });
             totalPrice += auditProduct.price;
-            serviceDescription += `Audit (${input.auditService})`;
+            serviceDescription += `Audit (${input.auditService}) `;
+          }
+        }
+
+        // Add meta audit service if selected
+        if (input.metaAuditService) {
+          const metaKey = `META_AUDIT_${input.metaAuditService.toUpperCase().replace(/_/g, "_")}`;
+          const metaProduct = (require("../stripe/products").STRIPE_PRODUCTS as any)[metaKey];
+          if (metaProduct) {
+            lineItems.push({
+              price_data: {
+                currency: "usd",
+                product_data: {
+                  name: metaProduct.name,
+                  description: metaProduct.description,
+                },
+                unit_amount: metaProduct.price,
+                recurring: {
+                  interval: "month",
+                },
+              },
+              quantity: 1,
+            });
+            totalPrice += metaProduct.price;
+            serviceDescription += `Meta Audit (${input.metaAuditService})`;
           }
         }
 
@@ -160,6 +185,7 @@ export const paymentRouter = router({
             partnerId: partnerId.toString(),
             leadsService: input.leadsService || "none",
             auditService: input.auditService || "none",
+            metaAuditService: input.metaAuditService || "none",
             totalPrice: totalPrice.toString(),
           },
           allow_promotion_codes: true,
