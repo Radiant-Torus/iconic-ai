@@ -8,6 +8,8 @@ import { Loader2, Check, Zap, MapPin, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
+import TestimonialsCarousel from "@/components/TestimonialsCarousel";
+import PricingFAQ from "@/components/PricingFAQ";
 
 export default function PricingPage() {
   const { user, isAuthenticated } = useAuth();
@@ -348,6 +350,12 @@ export default function PricingPage() {
           </div>
         )}
       </main>
+
+      {/* Testimonials Section */}
+      <TestimonialsCarousel />
+
+      {/* FAQ Section */}
+      <PricingFAQ />
     </div>
   );
 }

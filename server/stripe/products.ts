@@ -168,6 +168,44 @@ export const STRIPE_PRODUCTS = {
     ],
     priceId: "price_1T4BM52SH1dm83HBrP8YHOjD", // Stripe Live Price ID
   },
+
+  // BUNDLE PACKAGES - Save 20%
+  BUNDLE_LEADS_AUDIT: {
+    name: "Bundle - Lead Gen + Maps Audit",
+    price: 29900, // $299.00 in cents (20% off $374)
+    currency: "usd",
+    interval: "month",
+    description: "Lead Generation (Professional) + Google Maps Audit (Professional) - Save 20%",
+    service: "bundle",
+    tier: "leads_audit",
+    features: [
+      "20 leads per day",
+      "20 audits per month",
+      "Advanced dashboard",
+      "Priority support",
+      "20% savings vs individual tiers",
+    ],
+    priceId: "price_bundle_leads_audit", // Will be created via API
+  },
+  BUNDLE_ALL_THREE: {
+    name: "Bundle - All Three Services",
+    price: 59900, // $599.00 in cents (20% off $749)
+    currency: "usd",
+    interval: "month",
+    description: "Lead Gen + Maps Audit + Meta Audit (Professional) - Save 20%",
+    service: "bundle",
+    tier: "all_three",
+    features: [
+      "20 leads per day",
+      "20 audits per month",
+      "Full Meta ads analysis",
+      "Advanced dashboard",
+      "Priority support",
+      "30-min strategy call",
+      "20% savings vs individual tiers",
+    ],
+    priceId: "price_bundle_all_three", // Will be created via API
+  },
 };
 
 /**
@@ -181,7 +219,7 @@ export function getProductByTier(tier: string) {
 /**
  * Get all available tiers for a service
  */
-export function getAvailableTiersByService(service: "leads" | "audit" | "meta_audit") {
+export function getAvailableTiersByService(service: "leads" | "audit" | "meta_audit" | "bundle") {
   return Object.entries(STRIPE_PRODUCTS)
     .filter(([_, product]: any) => product.service === service)
     .map(([key, product]: any) => ({
