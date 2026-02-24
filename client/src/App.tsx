@@ -10,6 +10,7 @@ import PricingPage from "./pages/Pricing";
 import AuditDashboard from "./pages/AuditDashboard";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import ImmortalGrandmaBlog from "./pages/ImmortalGrandmaBlog";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -19,6 +20,7 @@ function Router() {
       <Route path={"/leads"} component={LeadsPage} />
       <Route path={"/pricing"} component={PricingPage} />
       <Route path={"/audit"} component={AuditDashboard} />
+      <Route path={"/immortal-grandma"} component={ImmortalGrandmaBlog} />
       <Route path={"/terms"} component={Terms} />
       <Route path={"/privacy"} component={Privacy} />
       <Route path={"/404"} component={NotFound} />

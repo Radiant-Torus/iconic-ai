@@ -69,7 +69,7 @@ export default function Home() {
               <h2 className="text-4xl font-bold text-slate-900 mb-4">
                 Your AI-Powered Lead Generator
               </h2>
-              <p className="text-xl subtitle max-w-2xl mx-auto">
+              <p className="text-2xl font-bold text-slate-800 max-w-2xl mx-auto">
                 Get qualified leads delivered daily, tailored to your niche. No complicated setup. Just results.
               </p>
             </div>
@@ -294,7 +294,10 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex justify-center gap-6 mb-6 text-sm">
+          <div className="flex justify-center gap-6 mb-6 text-sm flex-wrap">
+            <button onClick={() => navigate("/immortal-grandma")} className="text-purple-600 hover:text-purple-700 underline font-semibold">
+              Immortal Grandma
+            </button>
             <button onClick={() => navigate("/terms")} className="text-blue-600 hover:text-blue-700 underline">
               Terms of Service
             </button>
