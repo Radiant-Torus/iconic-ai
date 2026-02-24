@@ -215,7 +215,7 @@ export default function PricingPage() {
           <h2 className="text-4xl font-bold text-slate-900 mb-4">
             Complete Business Growth Platform
           </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+           <p className="text-2xl font-bold text-slate-800 max-w-2xl mx-auto">
             Choose the services that work best for your business. All powered by AI and designed for HVAC contractors and local service businesses.
           </p>
         </div>
