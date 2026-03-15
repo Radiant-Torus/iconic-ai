@@ -4,8 +4,27 @@ import { getDb } from "../db";
 import { partners, subscriptions } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
+// Lazy initialization of Stripe to avoid throwing at module load time
+let _stripe: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      throw new Error("Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.");
+    }
+    _stripe = new Stripe(key);
+  }
+  return _stripe;
+}
+
+function getWebhookSecret(): string {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) {
+    throw new Error("Stripe webhook secret is not configured. Please set STRIPE_WEBHOOK_SECRET environment variable.");
+  }
+  return secret;
+}
 
 /**
  * Handle Stripe webhook events
@@ -17,7 +36,7 @@ export async function handleStripeWebhook(req: Request, res: Response) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    event = getStripe().webhooks.constructEvent(req.body, sig, getWebhookSecret());
   } catch (err: any) {
     console.error("Webhook signature verification failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -49,7 +68,7 @@ export async function handleStripeWebhook(req: Request, res: Response) {
 
           // Get subscription from Stripe
           if (session.subscription) {
-            const subscription = await stripe.subscriptions.retrieve(
+            const subscription = await getStripe().subscriptions.retrieve(
               session.subscription as string
             );
 
@@ -158,7 +177,7 @@ export async function handleStripeWebhook(req: Request, res: Response) {
 
         // Update subscription if needed
         if ((invoice as any).subscription) {
-          const subscription = await stripe.subscriptions.retrieve(
+          const subscription = await getStripe().subscriptions.retrieve(
             (invoice as any).subscription as string
           );
 
@@ -193,7 +212,7 @@ export async function handleStripeWebhook(req: Request, res: Response) {
         console.log("[Webhook] Invoice payment failed:", invoice.id);
 
         if ((invoice as any).subscription) {
-          const subscription = await stripe.subscriptions.retrieve(
+          const subscription = await getStripe().subscriptions.retrieve(
             (invoice as any).subscription as string
           );
 

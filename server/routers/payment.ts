@@ -8,7 +8,22 @@ import { partners, subscriptions } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { getAvailableTiers, calculateCombinedPrice } from "../stripe/products";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+// Lazy initialization of Stripe to avoid throwing at module load time
+let _stripe: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.",
+      });
+    }
+    _stripe = new Stripe(key);
+  }
+  return _stripe;
+}
 
 export const paymentRouter = router({
   /**
@@ -76,7 +91,7 @@ export const paymentRouter = router({
         let stripeCustomerId = ctx.user.stripeCustomerId;
 
         if (!stripeCustomerId) {
-          const customer = await stripe.customers.create({
+          const customer = await getStripe().customers.create({
             email: ctx.user.email || undefined,
             name: ctx.user.name || undefined,
             metadata: {
@@ -172,7 +187,7 @@ export const paymentRouter = router({
         }
 
         // Create checkout session
-        const session = await stripe.checkout.sessions.create({
+        const session = await getStripe().checkout.sessions.create({
           customer_email: ctx.user.email || undefined,
           client_reference_id: ctx.user.id.toString(),
           payment_method_types: ["card"],
@@ -261,7 +276,7 @@ export const paymentRouter = router({
       }
 
       // Cancel subscription in Stripe
-      await stripe.subscriptions.update(partner[0].stripeSubscriptionId, {
+      await getStripe().subscriptions.update(partner[0].stripeSubscriptionId, {
         cancel_at_period_end: true,
       });
 
