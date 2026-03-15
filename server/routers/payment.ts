@@ -10,7 +10,6 @@ import { getAvailableTiers, calculateCombinedPrice } from "../stripe/products";
 
 // Lazy initialization of Stripe to avoid throwing at module load time
 let _stripe: Stripe | null = null;
-console.log("[v0] Payment router loaded - Stripe will be initialized on first use");
 
 function getStripe(): Stripe {
   if (!_stripe) {
